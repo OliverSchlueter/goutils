@@ -2,7 +2,7 @@ package sloki_test
 
 import (
 	"context"
-	"github.com/OliverSchlueter/sloki/sloki"
+	"github.com/OliverSchlueter/goutils/sloki"
 	"testing"
 )
 
