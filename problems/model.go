@@ -2,6 +2,7 @@ package problems
 
 import (
 	"encoding/json"
+	"net/http"
 	"time"
 )
 
@@ -16,4 +17,17 @@ type Problem struct {
 
 func (p *Problem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p)
+}
+
+func (p *Problem) Send(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(p.Status)
+
+	data, err := p.MarshalJSON()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	_, _ = w.Write(data)
 }
