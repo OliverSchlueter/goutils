@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-var natsBroker broker.Broker
-
 func TestFakeBroker_Publish(t *testing.T) {
 	brokertest.TestPublish(t, broker.NewFakeBroker())
 }
@@ -44,24 +42,20 @@ func TestNatsBroker_SubscribeQueue(t *testing.T) {
 }
 
 func NewNatsBroker(t *testing.T) broker.Broker {
-	if natsBroker != nil {
-		return natsBroker
-	}
-
 	ctx := context.Background()
-	_, err := containers.StartNATS(ctx)
+	p, err := containers.StartNATS(ctx)
 	if err != nil {
 		t.Fatalf("Failed to start NATS container: %v", err)
 	}
 
-	nc, err := nats.Connect(nats.DefaultURL)
+	nc, err := nats.Connect("nats://localhost:"+p)
 	if err != nil {
 		t.Fatalf("Failed to connect to NATS: %v", err)
 	}
 
-	natsBroker = broker.NewNatsBroker(&broker.NatsConfiguration{
+	b := broker.NewNatsBroker(&broker.NatsConfiguration{
 		Nats: nc,
 	})
 
-	return natsBroker
+	return b
 }

@@ -3,8 +3,6 @@ package containers
 import (
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/go-connections/nat"
 	"github.com/testcontainers/testcontainers-go"
 	"log/slog"
 )
@@ -15,16 +13,6 @@ func StartNATS(ctx context.Context) (string, error) {
 	cReq := testcontainers.ContainerRequest{
 		Image:        "nats",
 		ExposedPorts: []string{"4222/tcp"},
-		HostConfigModifier: func(cfg *container.HostConfig) {
-			cfg.PortBindings = nat.PortMap{
-				"4222/tcp": []nat.PortBinding{
-					{
-						HostIP:   "0.0.0.0",
-						HostPort: "4222",
-					},
-				},
-			}
-		},
 	}
 	gReq := testcontainers.GenericContainerRequest{
 		ContainerRequest: cReq,
