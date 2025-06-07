@@ -15,15 +15,11 @@ type Problem struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func (p *Problem) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p)
-}
-
 func (p *Problem) Send(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(p.Status)
 
-	data, err := p.MarshalJSON()
+	data, err := json.Marshal(p)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
