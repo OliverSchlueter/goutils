@@ -7,8 +7,6 @@ import (
 	"log/slog"
 )
 
-var natsContainer testcontainers.Container
-
 func StartNATS(ctx context.Context) (string, error) {
 	cReq := testcontainers.ContainerRequest{
 		Image:        "nats",
@@ -21,12 +19,12 @@ func StartNATS(ctx context.Context) (string, error) {
 	}
 
 	var err error
-	natsContainer, err = testcontainers.GenericContainer(ctx, gReq)
+	nc, err := testcontainers.GenericContainer(ctx, gReq)
 	if err != nil {
 		return "", fmt.Errorf("could not start nats container: %w", err)
 	}
 
-	port, err := natsContainer.MappedPort(ctx, "4222")
+	port, err := nc.MappedPort(ctx, "4222")
 	if err != nil {
 		return "", fmt.Errorf("could not get port: %w", err)
 	}
@@ -34,14 +32,4 @@ func StartNATS(ctx context.Context) (string, error) {
 	slog.Info("Started NATS test container on port: " + port.Port())
 
 	return port.Port(), nil
-}
-
-func StopNATS(ctx context.Context) error {
-	err := natsContainer.Terminate(ctx)
-	if err != nil {
-		return fmt.Errorf("could not stop nats container: %w", err)
-	}
-	slog.Info("Stopped NATS test container")
-
-	return nil
 }
