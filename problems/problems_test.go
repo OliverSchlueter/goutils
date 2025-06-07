@@ -2,7 +2,9 @@ package problems_test
 
 import (
 	"encoding/json"
+	"github.com/OliverSchlueter/goutils/broker"
 	"github.com/OliverSchlueter/goutils/problems"
+	"github.com/nats-io/nats.go"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestProblem_Send(t *testing.T) {
+func TestProblem_WriteToHTTP(t *testing.T) {
 	problem := &problems.Problem{
 		Type:      "TestError",
 		Title:     "Test Error",
@@ -25,7 +27,7 @@ func TestProblem_Send(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	// Send the problem
-	problem.Send(rr)
+	problem.WriteToHTTP(rr)
 
 	// Check status code
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
@@ -44,6 +46,52 @@ func TestProblem_Send(t *testing.T) {
 	assert.Equal(t, problem.Detail, responseProblem.Detail)
 	assert.Equal(t, problem.Status, responseProblem.Status)
 	assert.WithinDuration(t, problem.Timestamp, responseProblem.Timestamp, time.Second)
+}
+
+func TestProblem_WriteToBroker(t *testing.T) {
+	// Create a problem
+	problem := &problems.Problem{
+		Type:      "TestError",
+		Title:     "Test Error",
+		Detail:    "This is a test error",
+		Status:    http.StatusBadRequest,
+		Timestamp: time.Now(),
+	}
+
+	// Create a fake broker
+	fakeBroker := broker.NewFakeBroker()
+
+	// Create a channel to receive the published message
+	receivedMsg := make(chan []byte, 1)
+
+	// Subscribe to messages
+	err := fakeBroker.Subscribe("test.subject", func(msg *nats.Msg) {
+		receivedMsg <- msg.Data
+	})
+	require.NoError(t, err)
+
+	// Write problem to broker
+	problem.WriteToBroker(fakeBroker, "test.subject")
+
+	// Wait for the message to be received
+	var data []byte
+	select {
+	case data = <-receivedMsg:
+		// Got data
+	case <-time.After(time.Second):
+		t.Fatal("Timed out waiting for message")
+	}
+
+	// Verify the published data
+	var receivedProblem problems.Problem
+	err = json.Unmarshal(data, &receivedProblem)
+	require.NoError(t, err)
+
+	assert.Equal(t, problem.Type, receivedProblem.Type)
+	assert.Equal(t, problem.Title, receivedProblem.Title)
+	assert.Equal(t, problem.Detail, receivedProblem.Detail)
+	assert.Equal(t, problem.Status, receivedProblem.Status)
+	assert.WithinDuration(t, problem.Timestamp, receivedProblem.Timestamp, time.Second)
 }
 
 func TestMethodNotAllowed(t *testing.T) {
