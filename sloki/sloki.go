@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+type LogHandler interface {
+	Handle(ctx context.Context, timestamp time.Time, level slog.Level, msg string, attr map[string]string) error
+}
+
 type Service struct {
 	url          string
 	service      string
@@ -19,6 +23,7 @@ type Service struct {
 	lokiLevel    slog.Level
 	enableLoki   bool
 	httpClient   *http.Client
+	handlers     []LogHandler
 }
 
 type Configuration struct {
@@ -27,9 +32,14 @@ type Configuration struct {
 	ConsoleLevel slog.Level
 	LokiLevel    slog.Level
 	EnableLoki   bool
+	Handlers     []LogHandler
 }
 
 func NewService(cfg Configuration) *Service {
+	if cfg.Handlers == nil {
+		cfg.Handlers = []LogHandler{}
+	}
+
 	return &Service{
 		url:          cfg.URL,
 		service:      cfg.Service,
@@ -37,6 +47,7 @@ func NewService(cfg Configuration) *Service {
 		lokiLevel:    cfg.LokiLevel,
 		enableLoki:   cfg.EnableLoki,
 		httpClient:   &http.Client{},
+		handlers:     cfg.Handlers,
 	}
 }
 
@@ -52,7 +63,7 @@ func (s *Service) sendToLoki(level slog.Level) bool {
 	return s.enableLoki && level >= s.lokiLevel
 }
 
-func (s *Service) Handle(_ context.Context, r slog.Record) error {
+func (s *Service) Handle(ctx context.Context, r slog.Record) error {
 	if !s.printToConsole(r.Level) {
 		return nil
 	}
@@ -83,6 +94,14 @@ func (s *Service) Handle(_ context.Context, r slog.Record) error {
 		r.Message,
 		string(attrJson),
 	)
+
+	for _, h := range s.handlers {
+		err := h.Handle(ctx, r.Time, r.Level, r.Message, attrs)
+		if err != nil {
+			fmt.Printf("Error in slog handler: %v\n", err)
+			return err
+		}
+	}
 
 	if !s.sendToLoki(r.Level) {
 		return nil
