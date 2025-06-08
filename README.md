@@ -17,3 +17,20 @@ Just a collection of useful Go utilities for various tasks.
 ```bash
 go get github.com/OliverSchlueter/goutils
 ```
+
+## sloki
+
+```go
+lokiService := sloki.NewService(sloki.Configuration{
+    URL:          "http://localhost:3100/loki/api/v1/push",
+    Service:      "my-service",
+    ConsoleLevel: slog.LevelDebug,
+    LokiLevel:    slog.LevelInfo,
+    EnableLoki:   true,
+})
+slog.SetDefault(slog.New(lokiService))
+
+slog.Info("Hello, world!", "key", "value")
+```
+
+The field `limits_config.allow_structured_metadata` in the loki configuration must be set to `true` to allow structured metadata.

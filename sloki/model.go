@@ -6,5 +6,5 @@ type PushLogsRequest struct {
 
 type Stream struct {
 	Labels map[string]string `json:"stream"`
-	Values [][]string        `json:"values"`
+	Values [][]any           `json:"values"`
 }

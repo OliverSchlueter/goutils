@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type Service struct {
@@ -51,7 +52,7 @@ func (s *Service) sendToLoki(level slog.Level) bool {
 	return s.enableLoki && level >= s.lokiLevel
 }
 
-func (s *Service) Handle(ctx context.Context, r slog.Record) error {
+func (s *Service) Handle(_ context.Context, r slog.Record) error {
 	if !s.printToConsole(r.Level) {
 		return nil
 	}
@@ -109,16 +110,20 @@ func (s *Service) pushLogToLoki(timestamp, level, message string, attrs map[stri
 		"service": s.service,
 		"level":   level,
 	}
+
+	logEntry := map[string]interface{}{
+		"timestamp": time.Now(),
+	}
 	for k, v := range attrs {
-		labels[k] = v
+		logEntry[k] = v
 	}
 
 	req := PushLogsRequest{
 		Streams: []Stream{
 			{
 				Labels: labels,
-				Values: [][]string{
-					{timestamp, message},
+				Values: [][]any{
+					{timestamp, message, logEntry},
 				},
 			},
 		},
