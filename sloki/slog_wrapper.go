@@ -3,6 +3,7 @@ package sloki
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -38,7 +39,15 @@ func WrapRequest(r *http.Request) slog.Attr {
 	url := slog.Any("url", r.URL.String())
 	userAgent := slog.Any("userAgent", r.UserAgent())
 	referrer := slog.Any("referrer", r.Referer())
-	body := slog.Any("body", r.Body)
+
+	bodyData, err := io.ReadAll(r.Body)
+	if err != nil {
+		bodyData = make([]byte, 0) // If reading the body fails, use an empty byte slice
+	} else {
+		// Reset the body so it can be read again later
+		r.Body = io.NopCloser(strings.NewReader(string(bodyData)))
+	}
+	body := slog.Any("body", string(bodyData))
 
 	jsonHeaders, _ := json.Marshal(r.Header)
 	jsonHeadersStr := strings.ReplaceAll(string(jsonHeaders), "\"", "")
