@@ -42,6 +42,7 @@ func WrapRequest(r *http.Request) slog.Attr {
 
 	bodyData, err := io.ReadAll(r.Body)
 	if err != nil {
+		slog.Warn("Could not read request body", WrapError(err))
 		bodyData = make([]byte, 0) // If reading the body fails, use an empty byte slice
 	} else {
 		// Reset the body so it can be read again later
