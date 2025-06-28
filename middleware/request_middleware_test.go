@@ -17,11 +17,11 @@ func TestLogging(t *testing.T) {
 
 	// Create a test handler that does nothing
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do nothing
+		w.WriteHeader(http.StatusOK)
 	})
 
 	// Wrap the test handler with our logging middleware
-	loggingHandler := RequestLogging(testHandler, slog.LevelInfo)
+	loggingHandler := RequestLogging(testHandler)
 
 	// Create a test request
 	req := httptest.NewRequest("GET", "/test", nil)

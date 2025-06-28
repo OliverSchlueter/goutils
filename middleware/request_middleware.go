@@ -7,7 +7,11 @@ import (
 	"time"
 )
 
+// LogLevel defines the logging level for request logging.
 var LogLevel = slog.LevelInfo
+
+// OnlyLogStatusAbove defines the threshold for status codes above which logging will not occur.
+var OnlyLogStatusAbove = 0
 
 type StatusRecorder struct {
 	http.ResponseWriter
@@ -29,6 +33,11 @@ func RequestLogging(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(sr, r)
+
+		if sr.Status < OnlyLogStatusAbove {
+			// If the status code is above the threshold, do not log
+			return
+		}
 
 		elapsedTime := time.Since(startTime)
 
