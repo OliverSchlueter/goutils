@@ -64,10 +64,6 @@ func (s *Service) sendToLoki(level slog.Level) bool {
 }
 
 func (s *Service) Handle(ctx context.Context, r slog.Record) error {
-	if !s.printToConsole(r.Level) {
-		return nil
-	}
-
 	attrs := map[string]string{}
 	r.Attrs(func(a slog.Attr) bool {
 		if a.Value.Kind() == slog.KindGroup {
@@ -88,12 +84,14 @@ func (s *Service) Handle(ctx context.Context, r slog.Record) error {
 		attrJson = append([]byte(" "), attrJson...)
 	}
 
-	fmt.Printf("%s [%s] %s%s\n",
-		r.Time.Format("2006-01-02 15:04:05"),
-		r.Level.String(),
-		r.Message,
-		string(attrJson),
-	)
+	if s.printToConsole(r.Level) {
+		fmt.Printf("%s [%s] %s%s\n",
+			r.Time.Format("2006-01-02 15:04:05"),
+			r.Level.String(),
+			r.Message,
+			string(attrJson),
+		)
+	}
 
 	for _, h := range s.handlers {
 		err := h.Handle(ctx, r.Time, r.Level, r.Message, attrs)
