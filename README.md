@@ -11,6 +11,7 @@ Just a collection of useful Go utilities for various tasks.
 - **container**: start and stop docker containers for testing purposes
 - **cloudevents**: utilities for working with CloudEvents ([1.0.2](https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md))
 - **problem**: a structured error handling package ([RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) compliant)
+- **healthcheck**: a health check handler for HTTP servers
 
 ## Installation
 
