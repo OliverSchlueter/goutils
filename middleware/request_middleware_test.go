@@ -21,7 +21,7 @@ func TestLogging(t *testing.T) {
 	})
 
 	// Wrap the test handler with our logging middleware
-	loggingHandler := Logging(testHandler)
+	loggingHandler := RequestLogging(testHandler, slog.LevelInfo)
 
 	// Create a test request
 	req := httptest.NewRequest("GET", "/test", nil)
@@ -37,8 +37,8 @@ func TestLogging(t *testing.T) {
 
 	// Verify log contains expected fields
 	logOutput := logBuffer.String()
-	if !strings.Contains(logOutput, "Request received") {
-		t.Errorf("Expected log to contain 'Request received', got: %s", logOutput)
+	if !strings.Contains(logOutput, "RequestLogging received") {
+		t.Errorf("Expected log to contain 'RequestLogging received', got: %s", logOutput)
 	}
 	if !strings.Contains(logOutput, "status=200") {
 		t.Errorf("Expected log to contain status code, got: %s", logOutput)

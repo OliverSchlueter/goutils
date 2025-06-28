@@ -17,7 +17,7 @@ func (s *StatusRecorder) WriteHeader(code int) {
 	s.ResponseWriter.WriteHeader(code)
 }
 
-func Logging(next http.Handler) http.Handler {
+func RequestLogging(next http.Handler, level slog.Level) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 
@@ -30,8 +30,10 @@ func Logging(next http.Handler) http.Handler {
 
 		elapsedTime := time.Since(startTime)
 
-		slog.Info(
-			"Request received",
+		slog.Log(
+			r.Context(),
+			level,
+			"RequestLogging received",
 			sloki.WrapRequest(r),
 			slog.Int("status", sr.Status),
 			slog.Int64("elapsed_time", elapsedTime.Milliseconds()),
