@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var LogLevel = slog.LevelInfo
+
 type StatusRecorder struct {
 	http.ResponseWriter
 	Status int
@@ -17,7 +19,7 @@ func (s *StatusRecorder) WriteHeader(code int) {
 	s.ResponseWriter.WriteHeader(code)
 }
 
-func RequestLogging(next http.Handler, level slog.Level) http.Handler {
+func RequestLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
 
@@ -32,7 +34,7 @@ func RequestLogging(next http.Handler, level slog.Level) http.Handler {
 
 		slog.Log(
 			r.Context(),
-			level,
+			LogLevel,
 			"RequestLogging received",
 			sloki.WrapRequest(r),
 			slog.Int("status", sr.Status),
