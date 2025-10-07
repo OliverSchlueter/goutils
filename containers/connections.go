@@ -24,6 +24,7 @@ func ConnectToNatsE2E() *nats.Conn {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to NATS")
 	return nc
 }
 
@@ -36,7 +37,14 @@ func ConnectToNats(url, authToken string) *nats.Conn {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to NATS")
 	return nc
+}
+
+// DisconnectNats closes the connection to the NATS server.
+func DisconnectNats(nc *nats.Conn) {
+	nc.Close()
+	slog.Info("Disconnected from NATS")
 }
 
 // ConnectToClickhouseE2E connects to a local Clickhouse instance.
@@ -71,6 +79,7 @@ func ConnectToClickhouseE2E(database string) driver.Conn {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to Clickhouse")
 	return ch
 }
 
@@ -107,7 +116,18 @@ func ConnectToClickhouse(addr, db, user, pwd, appName, appVersion string) driver
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to Clickhouse")
 	return ch
+}
+
+// DisconnectClickhouse closes the connection to the Clickhouse server.
+func DisconnectClickhouse(ch driver.Conn) {
+	if err := ch.Close(); err != nil {
+		slog.Error("Could not close Clickhouse connection", sloki.WrapError(err))
+		return
+	}
+
+	slog.Info("Disconnected from Clickhouse")
 }
 
 // ConnectToMongoE2E connects to a local MongoDB instance without authentication.
@@ -123,6 +143,7 @@ func ConnectToMongoE2E(database string) *mongo.Database {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to MongoDB")
 	return mc.Database(database)
 }
 
@@ -141,7 +162,18 @@ func ConnectToMongo(conn, db string) *mongo.Database {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to MongoDB")
 	return mc.Database(db)
+}
+
+// DisconnectMongo disconnects from the MongoDB server.
+func DisconnectMongo(mc *mongo.Database) {
+	if err := mc.Client().Disconnect(context.Background()); err != nil {
+		slog.Error("Could not disconnect from MongoDB", sloki.WrapError(err))
+		return
+	}
+
+	slog.Info("Disconnected from MongoDB")
 }
 
 // ConnectToRedisE2E connects to a local Redis instance without authentication.
@@ -158,6 +190,7 @@ func ConnectToRedisE2E() *redis.Client {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to Redis")
 	return rc
 }
 
@@ -176,5 +209,16 @@ func ConnectToRedis(addr, pwd string) *redis.Client {
 		os.Exit(1)
 	}
 
+	slog.Info("Connected to Redis")
 	return rc
+}
+
+// DisconnectRedis closes the connection to the Redis server.
+func DisconnectRedis(rc *redis.Client) {
+	if err := rc.Close(); err != nil {
+		slog.Error("Could not close Redis connection", sloki.WrapError(err))
+		return
+	}
+
+	slog.Info("Disconnected from Redis")
 }
