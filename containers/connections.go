@@ -2,6 +2,7 @@ package containers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/OliverSchlueter/goutils/sloki"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -221,4 +223,30 @@ func DisconnectRedis(rc *redis.Client) {
 	}
 
 	slog.Info("Disconnected from Redis")
+}
+
+// ConnectSqlite connects to a SQLite database at the given path.
+func ConnectSqlite(path string) *sql.DB {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		slog.Error("Failed to open sqlite database", sloki.WrapError(err))
+		os.Exit(1)
+	}
+
+	if err := db.Ping(); err != nil {
+		slog.Error("Failed to ping sqlite database", sloki.WrapError(err))
+		os.Exit(1)
+	}
+
+	slog.Info("Connected to SQLite")
+	return db
+}
+
+// DisconnectSqlite closes the connection to the SQLite database.
+func DisconnectSqlite(db *sql.DB) {
+	if err := db.Close(); err != nil {
+		slog.Error("Failed to close sqlite database", sloki.WrapError(err))
+	}
+
+	slog.Info("Disconnected from SQLite")
 }

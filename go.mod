@@ -4,6 +4,7 @@ go 1.25.1
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.40.3
+	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/nats-io/nats.go v1.46.1
 	github.com/redis/go-redis/v9 v9.14.0
 	github.com/stretchr/testify v1.11.1
