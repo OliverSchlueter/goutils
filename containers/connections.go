@@ -26,7 +26,7 @@ func ConnectToMinIOE2E() *minio.Client {
 		Creds:  credentials.NewStaticV4("adminadmin", "admin", ""),
 		Secure: false,
 	}
-	minioClient, err := minio.New("localhost:9000", opts)
+	minioClient, err := minio.New("localhost:9090", opts)
 	if err != nil {
 		slog.Error("Could not connect to MinIO", sloki.WrapError(err))
 		os.Exit(1)
