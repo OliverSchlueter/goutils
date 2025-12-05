@@ -23,7 +23,7 @@ import (
 // ConnectToMinIOE2E connects to a local MinIO instance without authentication.
 func ConnectToMinIOE2E() *minio.Client {
 	opts := &minio.Options{
-		Creds:  credentials.NewStaticV4("adminadmin", "admin", ""),
+		Creds:  credentials.NewStaticV4("admin", "adminadmin", ""),
 		Secure: false,
 	}
 	minioClient, err := minio.New("localhost:9090", opts)
