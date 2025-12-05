@@ -11,12 +11,51 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/OliverSchlueter/goutils/sloki"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
+
+// ConnectToMinIOE2E connects to a local MinIO instance without authentication.
+func ConnectToMinIOE2E() *minio.Client {
+	opts := &minio.Options{
+		Creds:  credentials.NewStaticV4("adminadmin", "admin", ""),
+		Secure: false,
+	}
+	minioClient, err := minio.New("localhost:9000", opts)
+	if err != nil {
+		slog.Error("Could not connect to MinIO", sloki.WrapError(err))
+		os.Exit(1)
+	}
+
+	slog.Info("Connected to MinIO")
+	return minioClient
+}
+
+// ConnectToMinIO connects to a MinIO instance using the provided parameters.
+func ConnectToMinIO(endpoint, user, password string) *minio.Client {
+	opts := &minio.Options{
+		Creds: credentials.NewStaticV4(user, password, ""),
+	}
+	minioClient, err := minio.New(endpoint, opts)
+	if err != nil {
+		slog.Error("Could not connect to MinIO", sloki.WrapError(err))
+		os.Exit(1)
+	}
+
+	slog.Info("Connected to MinIO")
+	return minioClient
+}
+
+// DisconnectMinIO closes the connection to the MinIO server.
+func DisconnectMinIO(minioClient *minio.Client) {
+	// MinIO client does not have a close method, so we just log the disconnection.
+	slog.Info("Disconnected from MinIO")
+}
 
 // ConnectToNatsE2E connects to a local NATS instance without authentication.
 func ConnectToNatsE2E() *nats.Conn {
