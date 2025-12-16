@@ -13,6 +13,7 @@ Just a collection of useful Go utilities for various tasks.
 - **problem**: a structured error handling package ([RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) compliant)
 - **healthcheck**: a health check handler for HTTP servers
 - **idgen**: ID generation
+- **ratelimit**: rate limiting
 
 ## Installation
 
