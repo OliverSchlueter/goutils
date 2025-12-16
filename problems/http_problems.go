@@ -110,6 +110,16 @@ func ValidationError(field, reason string) *Problem {
 	}
 }
 
+func TooManyRequests() *Problem {
+	return &Problem{
+		Type:      "TooManyRequests",
+		Title:     "Too Many Requests",
+		Detail:    "You have sent too many requests in a given amount of time. Please try again later.",
+		Status:    http.StatusTooManyRequests,
+		Timestamp: time.Now(),
+	}
+}
+
 // InternalServerError creates a Problem instance for HTTP 500 Internal Server Error.
 // It takes a detail message that provides more context about the error.
 func InternalServerError(detail string) *Problem {
