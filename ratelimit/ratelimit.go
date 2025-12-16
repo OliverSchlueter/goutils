@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/OliverSchlueter/goutils/ratelimit/database/memory"
 	"github.com/OliverSchlueter/goutils/sloki"
 )
 
@@ -31,6 +32,14 @@ type Configuration struct {
 }
 
 func NewService(config Configuration) *Service {
+	if config.DB == nil {
+		config.DB = memory.NewDB()
+	}
+
+	if config.GetIP == nil {
+		config.GetIP = GetIP
+	}
+
 	return &Service{
 		db:              config.DB,
 		tokensPerSecond: config.TokensPerSecond,
