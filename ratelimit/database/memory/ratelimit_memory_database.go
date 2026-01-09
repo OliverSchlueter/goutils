@@ -13,11 +13,12 @@ var (
 )
 
 type DB struct {
+	maxTokens   int
 	tokens      *ristretto.Cache[string, int]
 	refillTimes *ristretto.Cache[string, time.Time]
 }
 
-func NewDB() *DB {
+func NewDB(maxTokens int) *DB {
 	tokens, err := ristretto.NewCache(&ristretto.Config[string, int]{
 		NumCounters: 500 * 10,         // x10 of expected number of elements when full
 		MaxCost:     16 * 1024 * 1024, // 16 MB
@@ -37,6 +38,7 @@ func NewDB() *DB {
 	}
 
 	return &DB{
+		maxTokens:   maxTokens,
 		tokens:      tokens,
 		refillTimes: refillTimes,
 	}
@@ -45,7 +47,7 @@ func NewDB() *DB {
 func (db *DB) GetTokens(client string) (int, error) {
 	count, exists := db.tokens.Get(client)
 	if !exists {
-		return 0, nil
+		return db.maxTokens, nil
 	}
 
 	return count, nil

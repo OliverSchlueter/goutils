@@ -33,7 +33,7 @@ type Configuration struct {
 
 func NewService(config Configuration) *Service {
 	if config.DB == nil {
-		config.DB = memory.NewDB()
+		config.DB = memory.NewDB(config.MaxTokens)
 	}
 
 	if config.GetIP == nil {
