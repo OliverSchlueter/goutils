@@ -15,6 +15,7 @@ Just a collection of useful Go utilities for various tasks.
 - **idgen**: ID generation
 - **ratelimit**: rate limiting
 - **sitemap**: sitemap generation for websites
+- **badgegen**: badge generation for README files and websites
 
 ## Installation
 
