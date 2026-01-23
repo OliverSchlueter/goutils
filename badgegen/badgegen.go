@@ -1,4 +1,4 @@
-package badges
+package badgegen
 
 import "fmt"
 
