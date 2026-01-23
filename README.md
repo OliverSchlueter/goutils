@@ -14,7 +14,7 @@ Just a collection of useful Go utilities for various tasks.
 - **healthcheck**: a health check handler for HTTP servers
 - **idgen**: ID generation
 - **ratelimit**: rate limiting
-- **sitemap**: sitemap generation for websites
+- **sitemapgen**: sitemap generation for websites
 - **badgegen**: badge generation for README files and websites
 
 ## Installation

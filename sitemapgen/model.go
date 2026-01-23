@@ -1,4 +1,4 @@
-package sitemap
+package sitemapgen
 
 import "encoding/xml"
 

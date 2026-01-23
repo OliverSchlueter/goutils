@@ -1,4 +1,4 @@
-package sitemap
+package sitemapgen
 
 import (
 	"encoding/xml"
@@ -18,27 +18,27 @@ type Handler struct {
 }
 
 type Configuration struct {
-	provider      UrlProvider
-	rl            *ratelimit.Service
-	cacheDuration *int
+	Provider      UrlProvider
+	Ratelimit     *ratelimit.Service
+	CacheDuration *int
 }
 
 func NewHandler(cfg Configuration) *Handler {
-	if cfg.rl == nil {
-		cfg.rl = ratelimit.NewService(ratelimit.Configuration{
+	if cfg.Ratelimit == nil {
+		cfg.Ratelimit = ratelimit.NewService(ratelimit.Configuration{
 			TokensPerSecond: 2,
 			MaxTokens:       10,
 		})
 	}
-	if cfg.cacheDuration == nil {
+	if cfg.CacheDuration == nil {
 		defaultCacheDuration := 10800 // 3 hours
-		cfg.cacheDuration = &defaultCacheDuration
+		cfg.CacheDuration = &defaultCacheDuration
 	}
 
 	return &Handler{
-		provider:      cfg.provider,
-		rl:            cfg.rl,
-		cacheDuration: *cfg.cacheDuration,
+		provider:      cfg.Provider,
+		rl:            cfg.Ratelimit,
+		cacheDuration: *cfg.CacheDuration,
 	}
 }
 
